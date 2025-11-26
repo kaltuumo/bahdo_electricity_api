@@ -260,26 +260,26 @@ exports.getUser = async (req, res) => {
 //     }
 // };
 
-// exports.deleteAdmin = async (req, res) => {
-//     const adminId = req.params.id;  // Get the 'id' from the URL parameter
+exports.deleteUser = async (req, res) => {
+    const userId = req.params.id;  // Get the 'id' from the URL parameter
 
-//     try {
-//         // Find the admin by ID and delete it
-//         const result = await Admin.findByIdAndDelete(adminId);
+    try {
+        // Find the admin by ID and delete it
+        const result = await User.findByIdAndDelete(userId);
 
-//         if (!result) {
-//             return res.status(404).json({ success: false, message: 'Admin not found' });
-//         }
+        if (!result) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
 
-//         res.status(200).json({
-//             success: true,
-//             message: 'Admin deleted successfully',
-//         });
-//     } catch (err) {
-//         console.log(err);
-//         res.status(500).json({ success: false, message: 'Error deleting admin' });
-//     }
-// };
+        res.status(200).json({
+            success: true,
+            message: 'User deleted successfully',
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: 'Error deleting admin' });
+    }
+};
 
 
 

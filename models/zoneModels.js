@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const zoneSchema = new mongoose.Schema({
-  zone: { type: String, required: true },
+  zoneName: { type: String, required: true },
   description: { type: String, required: true },
 }, { timestamps: true });
 

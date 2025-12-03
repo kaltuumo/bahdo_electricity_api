@@ -59,20 +59,24 @@ exports.customerSignupSchema = joi.object({
     // discount: joi.number().min(0).optional(), // Add this line to allow discount
     // remaining: joi.number().min(0).optional(), // Add this line to allow remaining
     statusPerson: joi.string().valid('Single', 'Married').required(),
+    damiin: joi.string().optional(),
+     damiinPhone: joi.string()
+        .pattern(/^[0-9]{9,15}$/)
+        .required(),
     
 
 });
 
 exports.zoneSignupSchema = joi.object({
-  zone: joi.string().min(1).max(100).required(),
+  zoneName: joi.string().min(1).max(100).required(),
   description: joi.string().min(1).max(500).required(),
 });
 
-// exports.areaSignupSchema = joi.object({
-//   areaName: joi.string().min(1).max(100).required(),
-//   description: joi.string().min(1).max(500).required(),
-//     zone: joi.string().min(1).max(100).required(), // ✅ zone name
-// });
+exports.areaSignupSchema = joi.object({
+  areaName: joi.string().min(1).max(100).required(),
+  description: joi.string().min(1).max(500).required(),
+  zoneName: joi.string().min(1).max(100).required(), // ✅ zone name
+});
 
 
 

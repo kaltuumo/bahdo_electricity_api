@@ -1,23 +1,24 @@
-const Zone = require('../models/zoneModels'); 
-const { zoneSchema } = require('../middlewares/validator'); 
-const {zoneSignupSchema} = require('../middlewares/validator');
+const Area = require('../models/areaModels'); 
+const { areaSchema } = require('../middlewares/validator'); 
+const {areaSignupSchema} = require('../middlewares/validator');
 
 
 
 
-exports.createZone = async (req, res) => {
-    let { zoneName, description} = req.body;
+exports.createArea = async (req, res) => {
+    let { areaName, description, zoneName} = req.body;
 
     try {
         // Validate the input data
-        const { error } = zoneSignupSchema.validate({ zoneName, description });
+        const { error } = areaSignupSchema.validate({ areaName, description,zoneName });
         if (error) {
             return res.status(401).json({ success: false, message: error.details[0].message });
         }
 
-        const newZone = new Zone({
-            zoneName,
+        const newArea = new Area({
+            areaName,
             description,
+            zoneName
             
             // required: requiredAmount,  // Store as number
             // paid: paidAmount,          // Store as number
@@ -27,11 +28,11 @@ exports.createZone = async (req, res) => {
             
         });
 
-        const savedZone = await newZone.save();
+        const savedArea = await newArea.save();
 
         // Format the created and updated date/time for Somalia timezone (UTC+3)
-        const createdAtObj = new Date(savedZone.createdAt);
-        const updatedAtObj = new Date(savedZone.updatedAt);
+        const createdAtObj = new Date(savedArea.createdAt);
+        const updatedAtObj = new Date(savedArea.updatedAt);
 
         const createdDate = new Intl.DateTimeFormat('en-CA', {
             timeZone: 'Africa/Mogadishu'
@@ -59,11 +60,12 @@ exports.createZone = async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Customer has been created",
+            message: "Area has been created",
             result: {
-                _id: savedZone._id,
-                zoneName: savedZone.zoneName,
-                description: savedZone.description,
+                _id: savedArea._id,
+                areaName: savedArea.areaName,
+                description: savedArea.description,
+                zoneName: savedArea.zoneName,
                
                 createdDate,
                 createdTime,
@@ -77,17 +79,14 @@ exports.createZone = async (req, res) => {
     }
 };
 
-
-
-
-exports.getZone = async (req, res) => {
+exports.getArea = async (req, res) => {
     try {
-        const zones = await Zone.find();  // Fetch all admins
+        const areas = await Area.find();  // Fetch all admins
         
         // Format the date and time for each admin
-        const formattedZones = zones.map(Zone => {
-            const createdAtObj = new Date(Zone.createdAt);
-            const updatedAtObj = new Date(Zone.updatedAt);
+        const formattedAreas = areas.map(Area => {
+            const createdAtObj = new Date(Area.createdAt);
+            const updatedAtObj = new Date(Area.updatedAt);
 
             // Format createdAt date and time
             const createdDate = new Intl.DateTimeFormat('en-CA', {
@@ -116,9 +115,10 @@ exports.getZone = async (req, res) => {
             }).format(updatedAtObj); // "HH:MM:SS"
 
             return {
-                _id: Zone._id,
-                zoneName: Zone.zoneName,
-                description: Zone.description,
+                _id: Area._id,
+                areaName: Area.areaName,
+                description: Area.description,
+                zoneName: Area.zoneName,
             
                 createdDate,
                 createdTime,
@@ -129,8 +129,8 @@ exports.getZone = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Zone fetched successfully',
-            data: formattedZones,
+            message: 'Area fetched successfully',
+            data: formattedAreas,
         });
     } catch (err) {
         console.log(err);
@@ -141,30 +141,28 @@ exports.getZone = async (req, res) => {
 }
 
 
-
-
-
-exports.updateZone = async (req, res) => {
-    const { zoneName, description} = req.body;
-    const zoneId = req.params.id;  // Get the admin ID from the route parameter
+exports.updateArea = async (req, res) => {
+    const {areaName, zoneName, description} = req.body;
+    const areaId = req.params.id;  // Get the admin ID from the route parameter
 
     try {
         // Find the admin by ID
-        const existingZone = await Zone.findById(zoneId);
-        if (!existingZone) {
-            return res.status(404).json({ success: false, message: 'Zone not found' });
+        const existingArea = await Area.findById(areaId);
+        if (!existingArea) {
+            return res.status(404).json({ success: false, message: 'Area not found' });
         }
 
         // Update admin details
-        if (zoneName) existingZone.zoneName = zoneName;
-        if (description) existingZone.description = description;
+        if (areaName) existingArea.areaName = areaName;
+        if (zoneName) existingArea.zoneName = zoneName;
+        if (description) existingArea.description = description;
 
         
         // Save the updated admin
-        const updatedZone = await existingZone.save();
+        const updatedArea = await existingArea.save();
 
         // Format the updated date and time for Somalia timezone (UTC+3)
-        const updatedAtObj = new Date(updatedZone.updatedAt);
+        const updatedAtObj = new Date(updatedArea.updatedAt);
 
         const updateDate = new Intl.DateTimeFormat('en-CA', {
             timeZone: 'Africa/Mogadishu',
@@ -180,37 +178,36 @@ exports.updateZone = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Zone updated successfully',
+            message: 'Area updated successfully',
             result: {
-                _id: updatedZone._id,
-                zoneName: updatedZone.zoneName,
-                description: updatedZone.description,
+                _id: updatedArea._id,
+                areaName: updatedArea.areaName,
+                zoneName: updatedArea.zoneName,
+                description: updatedArea.description,
                 updateDate,
                 updateTime,
             },
         });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ success: false, message: 'Error updating Zone' });
+        res.status(500).json({ success: false, message: 'Error updating Area' });
     }
 };
 
-
-
-exports.deleteZone = async (req, res) => {
-    const zoneId = req.params.id;  // Get the 'id' from the URL parameter
+exports.deleteArea = async (req, res) => {
+    const areaId = req.params.id;  // Get the 'id' from the URL parameter
 
     try {
         // Find the admin by ID and delete it
-        const result = await Zone.findByIdAndDelete(zoneId);
+        const result = await Area.findByIdAndDelete(areaId);
 
         if (!result) {
-            return res.status(404).json({ success: false, message: 'Zone not found' });
+            return res.status(404).json({ success: false, message: 'Area not found' });
         }
 
         res.status(200).json({
             success: true,
-            message: 'Zone deleted successfully',
+            message: 'Area deleted successfully',
         });
     } catch (err) {
         console.log(err);

@@ -6,6 +6,8 @@ const customerSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     gender: { type: String, enum: ['Male', 'Female'], required: true },
     statusPerson: { type: String, enum: ['Single', 'Married'], required: true },
+    damiin: { type: String, required: false },
+    damiinPhone: { type: String, required: true },
     // required: { type: Number, required: true },
     // paid: { type: Number, required: true },
     // discount: { type: Number, default: 0 },

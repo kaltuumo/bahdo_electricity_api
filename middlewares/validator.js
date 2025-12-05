@@ -80,15 +80,15 @@ exports.areaSignupSchema = joi.object({
 
 
 
-// exports.houseSignupSchema = joi.object({
-//   fullname: joi.string().min(1).max(100).required(),
-//   phone: joi.string().min(1).max(50).required(),
-//   zone: joi.string().min(1).max(100).required(),
-//   area: joi.string().min(1).max(100).required(),
-//   city: joi.string().min(1).max(100).required(),
-//   houseInsurance: joi.string().min(1).max(100).optional(),
-// });
 
+exports.houseSignupSchema = joi.object({
+  fullname: joi.string().min(1).max(100).required(),
+  phone: joi.string().min(1).max(50).required(),
+  zoneName: joi.string().min(1).max(100).required(), 
+  areaName: joi.string().min(1).max(100).required(),
+  city: joi.string().min(1).max(100).required(),
+//   customerNo: joi.string().min(1).max(50).required(),
+});
 
 // exports.invoiceSignupSchema = joi.object({
 //   fullname: joi.string().min(1).max(100).required(),

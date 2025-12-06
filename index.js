@@ -8,7 +8,8 @@ const customerRouter = require('./routes/customerRoute'); // Import the student 
 const zoneRouter = require('./routes/zoneRoute');
 const areaRouter = require('./routes/areaRoute');
 const houseRouter = require('./routes/houseRoute');
-// const invoiceRouter = require('./routes/invoiceRoute');
+const electricRouter = require('./routes/electricRoute');
+const invoiceRouter = require('./routes/invoiceRoute');
 // const paymentRouter = require('./routes/paymentRoute');
 require('dotenv').config();
 const app = express();
@@ -31,7 +32,8 @@ app.use('/api/customer', customerRouter);
 app.use('/api/zone', zoneRouter);
 app.use('/api/area', areaRouter);
 app.use('/api/house', houseRouter);
-// app.use('/api/invoice', invoiceRouter);
+app.use('/api/electric', electricRouter);
+app.use('/api/invoice', invoiceRouter);
 // app.use('/api/payment', paymentRouter);
 
 // Root endpoint

@@ -90,27 +90,32 @@ exports.houseSignupSchema = joi.object({
 //   customerNo: joi.string().min(1).max(50).required(),
 });
 
-// exports.invoiceSignupSchema = joi.object({
-//   fullname: joi.string().min(1).max(100).required(),
-//   phone: joi.string().min(1).max(50).required(),
-//   zone: joi.string().min(1).max(50).required(),
-//   area: joi.string().min(1).max(50).required(),
-//   beforeRead: joi.number().required(),
-//   afterRead: joi.number().required(),
-//   kwhUsed: joi.number().required(),
-//   discount: joi.number().default(0),
-//   month: joi.string().required(),
-//   status: joi.string().valid('Paid', 'Unpaid', 'Pending').default('Unpaid'),
-//   houseNo: joi.string().allow('', null),
-//   watchNo: joi.string().allow('', null),
-//   totalAmount: joi.number().optional(),
+exports.electricSignupSchema  = joi.object({
+    electricType: joi.string().valid('Saacad', 'Group', 'Freazer').required(),
+    statusElectric: joi.string().valid('Active', 'Inactive', 'Free Charge').required(),
+});
 
-//   // ✅ Payments
-//   required: joi.number().min(0).optional(),
-//   paid: joi.number().min(0).optional(),
-//   remaining: joi.number().min(0).optional(),
-//   amountPaid: joi.number().default(0)
-// });
+exports.invoiceSignupSchema = joi.object({
+  fullname: joi.string().min(1).max(100).required(),
+  phone: joi.string().min(1).max(50).required(),
+  zone: joi.string().min(1).max(50).required(),
+  area: joi.string().min(1).max(50).required(),
+  beforeRead: joi.number().required(),
+  afterRead: joi.number().required(),
+  kwhUsed: joi.number().required(),
+  discount: joi.number().default(0),
+  month: joi.string().required(),
+  status: joi.string().valid('Paid', 'Unpaid', 'Pending').default('Unpaid'),
+  houseNo: joi.string().allow('', null),
+  watchNo: joi.string().allow('', null),
+  totalAmount: joi.number().optional(),
+
+  // ✅ Payments
+  required: joi.number().min(0).optional(),
+  paid: joi.number().min(0).optional(),
+  remaining: joi.number().min(0).optional(),
+  amountPaid: joi.number().default(0)
+});
 
 
 

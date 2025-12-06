@@ -195,8 +195,6 @@ exports.updateZone = async (req, res) => {
     }
 };
 
-
-
 exports.deleteZone = async (req, res) => {
     const zoneId = req.params.id;  // Get the 'id' from the URL parameter
 

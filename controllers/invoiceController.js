@@ -551,21 +551,3 @@ exports.getPaidInvoices = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching unpaid invoices' });
   }
 };
-
-exports.deleteInvoice = async (req, res) => {
-  const invoiceId = req.params.id;
-
-  try {
-    const result = await Invoice.findByIdAndDelete(invoiceId);
-    if (!result) return res.status(404).json({ success: false, message: 'Invoice not found' });
-
-    res.status(200).json({
-      success: true,
-      message: 'Invoice deleted successfully',
-    });
-  } catch (err) {
-    console.error("❌ Delete error:", err);
-    res.status(500).json({ success: false, message: 'Error deleting invoice' });
-  }
-};
-

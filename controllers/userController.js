@@ -102,60 +102,70 @@ if (lastUser && lastUser.userCode) {
     }
 };
 
-
-
 exports.login = async (req, res) => {
-	const { email, password } = req.body;
-	try {
-		const { error, value } = userLoginSchema.validate({ email, password });
-		if (error) {
-			return res
-				.status(401)
-				.json({ success: false, message: error.details[0].message });
-		}
+    const { userCode, password } = req.body;
 
-		const existingUser = await User.findOne({ email }).select('+password');
-		if (!existingUser) {
-			return res
-				.status(401)
-				.json({ success: false, message: 'User does not exists!' });
-		}
-		const result = await doHashValidation(password, existingUser.password);
-		if (!result) {
-			return res
-				.status(401)
-				.json({ success: false, message: 'Invalid credentials!' });
-		}
-		const token = jwt.sign(
-			{
-				userId: existingUser._id,
-				email: existingUser.email,
-				fullname: existingUser.fullname,
-				phone: existingUser.phone,
-				verified: existingUser.verified,
-			},
-			process.env.TOKEN_SECRET,
+    try {
+        // VALIDATION (bedel email → userCode)
+        const { error } = userLoginSchema.validate({ userCode, password });
+        if (error) {
+            return res
+                .status(401)
+                .json({ success: false, message: error.details[0].message });
+        }
+
+        // FIND USER USING userCode
+        const existingUser = await User.findOne({ userCode }).select('+password');
+
+        if (!existingUser) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid userCode or password!",
+            });
+        }
+
+        // CHECK PASSWORD
+        const isMatch = await doHashValidation(password, existingUser.password);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid userCode or password!",
+            });
+        }
+
+        // JWT TOKEN WITH userCode
+        const token = jwt.sign(
             {
-                expiresIn: '1d',
-            }
-			
-		);
+                userId: existingUser._id,
+                fullname: existingUser.fullname,
+                phone: existingUser.phone,
+                userCode: existingUser.userCode,   // ✔ KU DAR
+                role: existingUser.role,
+                status: existingUser.status,
+            },
+            process.env.TOKEN_SECRET,
+            { expiresIn: "1d" }
+        );
 
-		res
-			.cookie('Authorization', 'Bearer ' + token, {
-				expires: new Date(Date.now() + 8 * 3600000),
-				httpOnly: process.env.NODE_ENV === 'production',
-				secure: process.env.NODE_ENV === 'production',
-			})
-			.json({
-				success: true,
-				token,
-				message: 'Login successfully',
-			});
-	} catch (error) {
-		console.log(error);
-	}
+        res.json({
+            success: true,
+            message: "Login successful",
+            token,
+            user: {
+                fullname: existingUser.fullname,
+                phone: existingUser.phone,
+                userCode: existingUser.userCode,
+                role: existingUser.role,
+                status: existingUser.status,
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
 };
+
 
 exports.logout = async (req, res) => {
 	res

@@ -34,18 +34,14 @@ exports.userSignupSchema = joi.object({
 
 
 exports.userLoginSchema = joi.object({
-    email: joi.string()
-    .min(6)
-    .max(60)
+  userCode: joi.string().min(3).max(20).required(),
+
+  password: joi
+    .string()
     .required()
-    .email({
-        tlds: { allow: ['com', 'net'] }
-    }),
-    // Password: only numbers allowed
-    password: joi.string()
-    .required()
-    .pattern(new RegExp('^[0-9]{6,100}$')) // Only numeric characters
+    .pattern(/^[0-9]{6,100}$/), // only numbers
 });
+
 
 exports.customerSignupSchema = joi.object({
     customerNo: joi.string().optional(),

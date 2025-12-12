@@ -10,6 +10,7 @@ router.put('/update-status/:id', invoiceController.updateInvoiceStatus);
 router.get('/all-pending', invoiceController.getPendingInvoices);
 router.get('/unpaid', invoiceController.getUnpaidInvoices);
 router.get('/paid', invoiceController.getPaidInvoices);
+router.post("/pay/:id", invoiceController.payInvoice);
 
 
 

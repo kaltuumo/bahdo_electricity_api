@@ -6,14 +6,14 @@ const { invoiceSchema, invoiceSignupSchema } = require('../middlewares/validator
 exports.createInvoice = async (req, res) => {
   const {
     fullname, phone, zone, area, beforeRead, afterRead,
-    kwhUsed, discount, month, status
+    kwhUsed, discount, month, status, paid // ✅ include paid from req.body
   } = req.body;
 
   try {
     // Validate input
     const { error } = invoiceSignupSchema.validate({
       fullname, phone, zone, area, beforeRead, afterRead,
-      kwhUsed, discount, month, status
+      kwhUsed, discount, month, status, paid
     });
     if (error) {
       return res.status(401).json({ success: false, message: error.details[0].message });
@@ -39,18 +39,21 @@ exports.createInvoice = async (req, res) => {
       const lastWatch = parseInt(lastInvoice.watchNo.replace(/\D/g, ''));
       watchNo = 'W' + String(lastWatch + 1).padStart(3, '0');
     }
-// ✅ Calculate total before discount
-let totalAmount = Number(((afterRead - beforeRead) * kwhUsed).toFixed(2));
 
-// ✅ Required after discount (this is what customer should pay)
-let requiredAmount = totalAmount;
-if (discount && discount > 0) {
-  requiredAmount = Number((totalAmount - discount).toFixed(2));
-}
+    // ✅ Calculate total before discount
+    const totalAmount = Number(((afterRead - beforeRead) * kwhUsed).toFixed(2));
 
-const paidAmount = 0;
-const remainingAmount = requiredAmount - paidAmount;
+    // ✅ Required after discount (this is what customer should pay)
+    let requiredAmount = totalAmount;
+    if (discount && discount > 0) {
+      requiredAmount = Number((totalAmount - discount).toFixed(2));
+    }
 
+    // ✅ Use paid from frontend
+    const paidAmount = paid ? Number(paid) : 0;
+
+    // ✅ Remaining should never be negative
+    const remainingAmount = Math.max(requiredAmount - paidAmount, 0);
 
     const newInvoice = new Invoice({
       billNo,
@@ -549,5 +552,57 @@ exports.getPaidInvoices = async (req, res) => {
   } catch (err) {
     console.error('❌ Error fetching unpaid invoices:', err);
     res.status(500).json({ success: false, message: 'Error fetching unpaid invoices' });
+  }
+};
+
+
+// PAY INVOICE (Add Payment Amount)
+exports.payInvoice = async (req, res) => {
+  try {
+    const { amount, method } = req.body;
+    const invoiceId = req.params.id;
+
+    if (!amount) {
+      return res.status(400).json({ message: "Payment amount required" });
+    }
+
+    const invoice = await Invoice.findById(invoiceId);
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    // Calculate remaining
+    const usedKwh = invoice.afterRead - invoice.beforeRead > 0
+      ? invoice.afterRead - invoice.beforeRead
+      : 0;
+
+    const totalAmount = usedKwh * Number(invoice.kwhUsed);
+    const required = totalAmount - Number(invoice.discount);
+    const remaining = Math.max(required - Number(invoice.paid), 0);
+
+    if (amount > remaining) {
+      return res.status(400).json({
+        message: "Payment cannot exceed remaining amount",
+      });
+    }
+
+    // Update paid amount
+    invoice.paid = Number(invoice.paid) + Number(amount);
+
+    // Update status
+    const newRemaining = required - invoice.paid;
+    invoice.status = newRemaining <= 0 ? "Paid" : "Pending";
+
+    // Save payment method
+    invoice.lastPaymentMethod = method;
+
+    await invoice.save();
+
+    res.json({
+      message: "Payment successful",
+      invoice,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
